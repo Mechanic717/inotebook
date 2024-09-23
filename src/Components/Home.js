@@ -1,10 +1,9 @@
 import Notes from "./Notes";
 
-
-const Home = () => {
+const Home = ({ showAlert }) => {
   return (
     <div className="my-3">
-      <Notes />
+      <Notes showAlert={showAlert} />
     </div>
   );
 };

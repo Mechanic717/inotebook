@@ -1,16 +1,24 @@
 import React, { useState, useContext } from 'react';
 import NoteContext from '../context/notes/NoteContext';
 
-const AddNote = () => {
+const AddNote = (props) => {
     const context = useContext(NoteContext);
     const { addNote } = context;
-    const [note, setNote] = useState({ title: "", description: "", tag: "default" });
+    const [note, setNote] = useState({ title: "", description: "", tag: "" });
+    const [loading, setLoading] = useState(false); // Define loading state
 
-    const handleClick = (e) => {
+    const handleClick = async (e) => {
         e.preventDefault();
-        addNote(note.title, note.description, note.tag);
-        // Reset the form after adding a note
-        setNote({ title: "", description: "", tag: "default" });
+        setLoading(true);
+        try {
+            await addNote(note.title, note.description, note.tag);
+            props.showAlert("Added Successfully", "success"); // Match format
+        } catch (error) {
+            props.showAlert("Failed to add note", "danger");
+        } finally {
+            setLoading(false);
+            setNote({ title: "", description: "", tag: "" });
+        }
     };
 
     const onChange = (e) => {
@@ -20,7 +28,7 @@ const AddNote = () => {
     return (
         <>
             <h2>Add a Note</h2>
-            <form>
+            <form onSubmit={handleClick}>
                 <div className="mb-3">
                     <label htmlFor="title" className="form-label">Title</label>
                     <input
@@ -47,7 +55,6 @@ const AddNote = () => {
                         required
                     ></textarea>
                 </div>
-
                 <div className="mb-3">
                     <label htmlFor="tag" className="form-label">Tag</label>
                     <input
@@ -59,18 +66,16 @@ const AddNote = () => {
                         onChange={onChange}
                     />
                 </div>
-
                 <button
                     type="submit"
                     className="btn btn-primary my-2"
-                    onClick={handleClick}
-                    disabled={note.title.length < 5 || note.description.length < 5}
+                    disabled={loading || note.title.length < 5 || note.description.length < 5} // Disable button while loading
                 >
-                    Add Note
+                    {loading ? "Adding..." : "Add Note"}
                 </button>
             </form>
         </>
     );
-}
+};
 
 export default AddNote;
